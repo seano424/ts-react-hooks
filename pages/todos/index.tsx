@@ -1,11 +1,12 @@
 import styles from '../../styles/Home.module.css'
 import { useCallback, useRef } from 'react'
 import { useTodos } from '../../lib/useTodos'
+import Todo from '../../components/Todo'
 import Button from '../../components/Button'
 
 export default function Todos() {
   const newTodoRef = useRef<HTMLInputElement>(null)
-  const { todos, addTodo, removeTodo } = useTodos([
+  const { todos, addTodo, removeTodo, updateTodo } = useTodos([
     {
       done: false,
       id: 0,
@@ -23,10 +24,12 @@ export default function Todos() {
   return (
     <div className={styles.container}>
       {todos.map((todo) => (
-        <div key={todo.id}>
-          {todo.text}
-          <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
-        </div>
+        <Todo
+          key={todo.id}
+          todo={todo}
+          updateTodo={updateTodo}
+          removeTodo={removeTodo}
+        />
       ))}
       <input type="text" placeholder="add todo" ref={newTodoRef} />
       <Button title="Add todo" onClick={onAddTodo}></Button>

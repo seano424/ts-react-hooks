@@ -1,6 +1,9 @@
 import { useCallback, useReducer } from 'react'
 
-type ActionType = { type: 'ADD'; text: string } | { type: 'REMOVE'; id: number }
+type ActionType =
+  | { type: 'ADD'; text: string }
+  | { type: 'REMOVE'; id: number }
+  | { type: 'UPDATE'; text: string; id: number }
 
 interface Todo {
   id: number
@@ -12,6 +15,7 @@ export function useTodos(initialTodos: Todo[]): {
   todos: Todo[]
   addTodo: (text: string) => void
   removeTodo: (id: number) => void
+  updateTodo: (id: number, text: string) => void
 } {
   const [todos, dispatch] = useReducer((state: Todo[], action: ActionType) => {
     switch (action.type) {
@@ -26,6 +30,15 @@ export function useTodos(initialTodos: Todo[]): {
         ]
       case 'REMOVE':
         return state.filter(({ id }) => id !== action.id)
+      case 'UPDATE':
+        const updatedState = [...state]
+        updatedState.map((todo) => {
+          if (todo.id === action.id) {
+            todo.text = action.text
+          }
+        })
+        state = updatedState
+        return state
       default:
         throw new Error()
     }
@@ -45,5 +58,13 @@ export function useTodos(initialTodos: Todo[]): {
     })
   }, [])
 
-  return { todos, addTodo, removeTodo }
+  const updateTodo = useCallback((id: number, text: string) => {
+    dispatch({
+      type: 'UPDATE',
+      id,
+      text,
+    })
+  }, [])
+
+  return { todos, addTodo, removeTodo, updateTodo }
 }
