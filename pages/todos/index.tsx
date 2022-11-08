@@ -1,43 +1,22 @@
 import styles from '../../styles/Home.module.css'
-import { useCallback, useReducer, useRef } from 'react'
+import { useCallback, useRef } from 'react'
+import { useTodos } from '../../lib/useTodos'
 import Button from '../../components/Button'
-
-interface Todo {
-  id: number
-  done: boolean
-  text: string
-}
-
-type ActionType = { type: 'ADD'; text: string } | { type: 'REMOVE'; id: number }
 
 export default function Todos() {
   const newTodoRef = useRef<HTMLInputElement>(null)
+  const { todos, addTodo, removeTodo } = useTodos([
+    {
+      done: false,
+      id: 0,
+      text: 'whoa',
+    },
+  ])
 
   const onAddTodo = useCallback(() => {
     if (newTodoRef.current) {
-      dispatch({
-        type: 'ADD',
-        text: newTodoRef.current.value,
-      })
+      addTodo(newTodoRef.current.value)
       newTodoRef.current.value = ''
-    }
-  }, [])
-
-  const [todos, dispatch] = useReducer((state: Todo[], action: ActionType) => {
-    switch (action.type) {
-      case 'ADD':
-        return [
-          ...state,
-          {
-            id: state.length,
-            text: action.text,
-            done: false,
-          },
-        ]
-      case 'REMOVE':
-        return state.filter(({ id }) => id !== action.id)
-      default:
-        throw new Error()
     }
   }, [])
 
@@ -46,16 +25,7 @@ export default function Todos() {
       {todos.map((todo) => (
         <div key={todo.id}>
           {todo.text}
-          <Button
-            onClick={() =>
-              dispatch({
-                type: 'REMOVE',
-                id: todo.id,
-              })
-            }
-          >
-            Remove
-          </Button>
+          <Button onClick={() => removeTodo(todo.id)}>Remove</Button>
         </div>
       ))}
       <input type="text" placeholder="add todo" ref={newTodoRef} />
